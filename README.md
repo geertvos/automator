@@ -27,16 +27,34 @@ GIT_REPO=https://github.com/geertvos/automator-scripts-demo.git
 
 # APIs #
 A lot of default API implemenations are provided and can be used in the scripting language. The plugin loader can be used to load any plugin.
+
+## Loggin ##
 ```
 var init = function() {
     plugins.load("log");
 }
 ```
+
 The example above loads the default logging plugin that provides access to the internal logging system. The log engine behind is log4j2.
 ```
 log.info("This is info");
 log.warn("This is a warning");
 log.error("This is an error");
+```
+
+## Event Bus ##
+Automator has an internal event bus that scripts can subscribe to for async callbacks. All events are broadcasted to all listeners based on the key they registered on. For now these keys need to be an exact match, the final version will contain a tree structure and will allow for selecting subtrees.
+```
+var onReceiveEvent = function(event) {
+    log.info("Demo received event: "+event.getMessage());
+}
+
+var init = function() {
+    plugins.load("log");
+    plugins.load("eventbus");
+    log.info("Loaded event demo.");
+    eventbus.register(onReceiveEvent, "scripts.executed");
+}
 ```
 
 ## Slack ##
