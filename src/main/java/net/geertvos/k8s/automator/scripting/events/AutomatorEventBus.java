@@ -4,17 +4,17 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
-import javax.script.Invocable;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AutomatorEventBus {
 
-	private final Map<String,List<EventBusListener>> listeners = new HashMap<>();
+	private final Logger LOG = LogManager.getLogger(AutomatorEventBus.class);
+	private final Map<String, List<EventBusListener>> listeners = new HashMap<>();
 	
 	public void register(Function<Event, Void> f, String key) {
 		EventBusListener listener = new EventBusListener() {
@@ -24,19 +24,23 @@ public class AutomatorEventBus {
 				f.apply(event);
 			}
 		};
-		if(listeners.containsKey(key)) {
-			listeners.get(key).add(listener);
-		} else {
+		if(!listeners.containsKey(key)) {
 			listeners.put(key, new LinkedList<>());
-			listeners.get(key).add(listener);
 		}
+		listeners.get(key).add(listener);
 	}
 	
 	public void broadcast(Event event) {
-		List<EventBusListener> receivers = listeners.get(event.getSubscriptionKey());
-		if(receivers != null) {
-			for(EventBusListener l : receivers) {
-				l.onReceiveEvent(event);
+		for(String key : listeners.keySet()) {
+			if(event.getSubscriptionKey().startsWith(key)) {
+				List<EventBusListener> keyKisteners = listeners.get(key);
+				for(EventBusListener listener : keyKisteners) {
+					try {
+						listener.onReceiveEvent(event);
+					} catch(Exception e) {
+						LOG.error("Unable to execute handler for event "+event.getSubscriptionKey(), e);
+					}
+				}
 			}
 		}
 	}
