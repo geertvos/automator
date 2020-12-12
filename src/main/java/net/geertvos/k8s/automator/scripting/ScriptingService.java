@@ -11,16 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.geertvos.k8s.automator.scripting.events.AutomatorEventBus;
+import net.geertvos.k8s.automator.scripting.events.DefaultAutomatorEvent;
+
 @Component
 public class ScriptingService implements ScriptSourceListener {
 
 	private final List<Script> activeScripts = new LinkedList<>();
-	private ScriptSource source; 
+	private final ScriptSource source;
+	private final AutomatorEventBus eventBus; 
 	private static final Logger LOG = LogManager.getLogger(ScriptingService.class);
+
 	
 	@Autowired
-	public ScriptingService(ScriptSource source) {
+	public ScriptingService(ScriptSource source, AutomatorEventBus eventBus) {
 		this.source = source;
+		this.eventBus = eventBus;
 		source.registerListener(this);
 	}
 	
@@ -40,6 +46,7 @@ public class ScriptingService implements ScriptSourceListener {
 				script.onError(t);
 			}
 		}
+		eventBus.broadcast(new DefaultAutomatorEvent("scripts.executed", "All scripts executed."));
 	}
 	
 

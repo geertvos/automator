@@ -15,6 +15,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import net.geertvos.k8s.automator.scripting.events.AutomatorEventBus;
+import net.geertvos.k8s.automator.scripting.events.DefaultAutomatorEvent;
 import net.geertvos.k8s.automator.scripting.javascript.AbstractJavascriptSource;
 import net.geertvos.k8s.automator.scripting.javascript.JavascriptScript;
 
@@ -28,8 +30,8 @@ public class GitJavascriptSource extends AbstractJavascriptSource {
 	private Git git;
 
 	@Autowired
-	public GitJavascriptSource(ApplicationContext context) {
-		super(context); 
+	public GitJavascriptSource(ApplicationContext context, AutomatorEventBus eventBus) {
+		super(context, eventBus); 
 		remoteUrl = System.getenv("GIT_REPO");
 		 if(remoteUrl == null) {
 			 throw new IllegalArgumentException("GIT_REPO environment variable is not set.");

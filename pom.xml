@@ -6,8 +6,7 @@
 	<artifactId>automator</artifactId>
 	<name>automator</name>
 	<version>0.0.1-SNAPSHOT</version>
-	<!-- Properties -->
-
+	<description>Automate small tasks on your K8S cluster</description>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -273,33 +272,6 @@
 								<goals>
 									<goal>upload</goal>
 								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>3.1.1</version>
-						<executions>
-							<execution>
-								<id>unpack</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>unpack</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>tv.mediadistillery.foundation</groupId>
-											<artifactId>md-helmchart-template</artifactId>
-											<type>jar</type>
-											<overWrite>false</overWrite>
-											<outputDirectory>src/main/generated-resources/${project.artifactId}</outputDirectory>
-											<includes>**/*.yaml,**/*.tpl,**/*.txt</includes>
-											<excludes>**/values.yaml</excludes>
-										</artifactItem>
-									</artifactItems>
-								</configuration>
 							</execution>
 						</executions>
 					</plugin>

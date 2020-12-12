@@ -13,10 +13,15 @@ public class PluginLoader {
 	}
 	
 	public void load(String name) {
+		boolean found = false;
 		for(JavascriptPluginModule plugin : plugins) {
 			if(plugin.getName().equals(name)) {
 				plugin.initializePlugin(script);
+				found = true;
 			}
+		}
+		if(!found) {
+			throw new RuntimeException("Plugin "+name+" does not exist.");
 		}
 	}
 	

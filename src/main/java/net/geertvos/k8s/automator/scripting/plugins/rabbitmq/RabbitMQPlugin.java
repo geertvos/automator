@@ -1,7 +1,5 @@
 package net.geertvos.k8s.automator.scripting.plugins.rabbitmq;
 
-import java.util.List;
-
 import javax.script.ScriptContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
