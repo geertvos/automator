@@ -17,10 +17,10 @@ import net.geertvos.k8s.automator.scripting.events.DefaultAutomatorEvent;
 @Component
 public class ScriptingService implements ScriptSourceListener {
 
+	private static final Logger LOG = LogManager.getLogger(ScriptingService.class);
 	private final List<Script> activeScripts = new LinkedList<>();
 	private final ScriptSource source;
 	private final AutomatorEventBus eventBus; 
-	private static final Logger LOG = LogManager.getLogger(ScriptingService.class);
 
 	
 	@Autowired
@@ -54,10 +54,10 @@ public class ScriptingService implements ScriptSourceListener {
 	public void onScriptAdded(Script script) {
 		try {
 			script.init();
-		} catch (Exception e) {
+			activeScripts.add(script);
+		} catch (Throwable e) {
 			LOG.error("Script initialization for script "+script.getName()+" failed.", e);
 		}
-		activeScripts.add(script);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class ScriptingService implements ScriptSourceListener {
 		activeScripts.remove(script);
 		try {
 			script.destroy();
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			LOG.error("Script destructor for script "+script.getName()+" failed.", e);
 		}
 	}

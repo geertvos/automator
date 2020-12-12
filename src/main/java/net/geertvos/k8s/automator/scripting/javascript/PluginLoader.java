@@ -21,7 +21,7 @@ public class PluginLoader {
 			}
 		}
 		if(!found) {
-			throw new RuntimeException("Plugin "+name+" does not exist.");
+			throw new RuntimeException("Plugin "+name+" could not be found.");
 		}
 	}
 	

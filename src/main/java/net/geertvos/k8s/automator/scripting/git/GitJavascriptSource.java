@@ -16,7 +16,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import net.geertvos.k8s.automator.scripting.events.AutomatorEventBus;
-import net.geertvos.k8s.automator.scripting.events.DefaultAutomatorEvent;
 import net.geertvos.k8s.automator.scripting.javascript.AbstractJavascriptSource;
 import net.geertvos.k8s.automator.scripting.javascript.JavascriptScript;
 
@@ -59,7 +58,6 @@ public class GitJavascriptSource extends AbstractJavascriptSource {
 		try {
 			localPath = File.createTempFile("AutomatorGitRepository", "");
 	        if(!localPath.delete()) {
-	        	//
 	        }
 			LOG.info("Cloning from " + remoteUrl + " to " + localPath);
 	        git = Git.cloneRepository()

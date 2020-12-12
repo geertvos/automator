@@ -1,11 +1,13 @@
 package net.geertvos.k8s.automator.scripting.events;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DefaultAutomatorEvent implements Event {
 
 	private final String key;
 	private final String message;
-	
-	//TODO: Add support to pass in event parameters. Best option: Map<String,Object> to match with JS
+	private final Map<String, Object> properties = new HashMap<>();
 	
 	public DefaultAutomatorEvent(String subscriptionKey, String message) {
 		this.key = subscriptionKey;
@@ -21,4 +23,11 @@ public class DefaultAutomatorEvent implements Event {
 		return message;
 	}
 
+	public void set(String key, Object value) {
+		this.properties.put(key, value);
+	}
+	
+	public Object get(String key) {
+		return this.properties.get(key);
+	}
 }

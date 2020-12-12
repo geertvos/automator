@@ -16,6 +16,12 @@ public class AutomatorEventBus {
 	private final Logger LOG = LogManager.getLogger(AutomatorEventBus.class);
 	private final Map<String, List<EventBusListener>> listeners = new HashMap<>();
 	
+	/**
+	 * Register an event handler function under the specified key. 
+	 * MAtching events with handlers is done based on event.startsWith(key)
+	 * @param f Callback
+	 * @param key The event key to match
+	 */
 	public void register(Function<Event, Void> f, String key) {
 		EventBusListener listener = new EventBusListener() {
 			
@@ -30,6 +36,10 @@ public class AutomatorEventBus {
 		listeners.get(key).add(listener);
 	}
 	
+	/**
+	 * Broad an event to the bus to all handlers that registered for the correct keys.
+	 * @param event
+	 */
 	public void broadcast(Event event) {
 		for(String key : listeners.keySet()) {
 			if(event.getSubscriptionKey().startsWith(key)) {

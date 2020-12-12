@@ -18,6 +18,7 @@ import net.geertvos.k8s.automator.scripting.events.DefaultAutomatorEvent;
 public abstract class AbstractJavascriptSource extends AbstractScriptSource {
 
 	private static final Logger LOG = LogManager.getLogger(AbstractJavascriptSource.class);
+	
 	protected final List<JavascriptPluginModule> plugins = new LinkedList<>();
 	protected final AutomatorEventBus eventBus;
 
