@@ -32,7 +32,7 @@ GIT_REPO=https://github.com/geertvos/automator-scripts-demo.git
 # APIs #
 A lot of default API implemenations are provided and can be used in the scripting language. The plugin loader can be used to load any plugin.
 
-## Loggin ##
+## Logging ##
 ```
 var init = function() {
     plugins.load("log");
