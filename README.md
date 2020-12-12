@@ -1,7 +1,11 @@
 # Automator
 Kubernetes Scripting Engine
 
-Automator is a full fledged scripting engine for your K8S cluster to automate small tasks. Similar to what bash scripts can do for a linux box, Automator helps you on k8s. The basic idea is that you can quickly script APIs together to get functionality that is normally not availble. For example, one might want to create an autoscaler for a service based on the number of queues defined in RabbitMQ. Or automatically register new pods to an internal services based on some annotations. Automator will provide default plugins for Slack, K8S, Log and the internal event bus. It is extremely easy to create your own plugin and add a new API to the Automator scripting context. The syntax for the scripts is Ecmascript (Javascript).
+Automator is a full fledged scripting engine for your K8S cluster to automate small tasks. Similar to what bash scripts can do for a linux box, Automator helps you on k8s. 
+
+The basic idea is that you can quickly script APIs together to get functionality that is normally not availble. For example, one might want to create an autoscaler for a service based on the number of queues defined in RabbitMQ. Or automatically register new pods to an internal services based on some annotations. 
+
+Automator will provide default plugins for Slack, K8S, Log and the internal event bus. It is extremely easy to create your own plugin and add a new API to the Automator scripting context. The syntax for the scripts is Ecmascript (Javascript).
 
 # Scripts
 Each automator script should have the following structure:
