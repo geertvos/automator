@@ -47,7 +47,7 @@ log.error("This is an error");
 ```
 
 ## Event Bus ##
-Automator has an internal event bus that scripts can subscribe to for async callbacks. All events are broadcasted to all listeners based on the key they registered on. For now these keys need to be an exact match, the final version will contain a tree structure and will allow for selecting subtrees.
+Automator has an internal event bus that scripts can subscribe to for async callbacks. All events are broadcasted to all listeners based on the key they registered on. Event handlers can register on a root key, like "scripts" to receive all events under that key, like "scripts.loaded".
 ```
 var onReceiveEvent = function(event) {
     log.info("Demo received event: "+event.getMessage());
