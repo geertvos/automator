@@ -36,7 +36,7 @@ public class RabbitMQPlugin implements JavascriptPluginModule {
 					    .username(managementUsername)
 					    .password(managementPassword)
 					);
-		    script.getContext().setAttribute("rabbitmq", client, ScriptContext.ENGINE_SCOPE);
+		    script.getContext().setAttribute(getName(), client, ScriptContext.ENGINE_SCOPE);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

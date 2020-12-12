@@ -22,7 +22,7 @@ public class EventBusPlugin implements JavascriptPluginModule {
 	@Override
 	public void initializePlugin(JavascriptScript script) {
 		try {
-		    script.getContext().setAttribute("eventbus", eventBus, ScriptContext.ENGINE_SCOPE);
+		    script.getContext().setAttribute(getName(), eventBus, ScriptContext.ENGINE_SCOPE);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

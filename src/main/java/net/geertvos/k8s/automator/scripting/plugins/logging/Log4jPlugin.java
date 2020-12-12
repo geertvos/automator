@@ -22,7 +22,7 @@ public class Log4jPlugin implements JavascriptPluginModule {
 	public void initializePlugin(JavascriptScript script) {
 		try {
 			Logger log = LogManager.getLogger(script.getName());
-		    script.getContext().setAttribute("log", log, ScriptContext.ENGINE_SCOPE);
+		    script.getContext().setAttribute(getName(), log, ScriptContext.ENGINE_SCOPE);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

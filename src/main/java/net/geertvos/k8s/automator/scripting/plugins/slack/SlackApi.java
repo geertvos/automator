@@ -23,7 +23,6 @@ public class SlackApi {
 	public SlackApi() {
 		String token = System.getenv("SLACK_TOKEN");
 		methods = slack.methods(token);
-
 	}
 	
 	

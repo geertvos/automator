@@ -34,7 +34,7 @@ public class KubernetesJavascriptPlugin implements JavascriptPluginModule {
 	@Override
 	public void initializePlugin(JavascriptScript script) {
 		try {
-		    script.getContext().setAttribute("k8s", api, ScriptContext.ENGINE_SCOPE);
+		    script.getContext().setAttribute(getName(), api, ScriptContext.ENGINE_SCOPE);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
