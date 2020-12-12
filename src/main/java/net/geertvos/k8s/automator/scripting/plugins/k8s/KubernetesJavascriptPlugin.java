@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.scripting.plugins.k8s;
+package net.geertvos.k8s.automator.scripting.plugins.k8s;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,9 +10,9 @@ import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
-import tv.mediadistillery.automator.scripting.javascript.JavascriptPlugin;
-import tv.mediadistillery.automator.scripting.javascript.JavascriptPluginModule;
-import tv.mediadistillery.automator.scripting.javascript.JavascriptScript;
+import net.geertvos.k8s.automator.scripting.javascript.JavascriptPlugin;
+import net.geertvos.k8s.automator.scripting.javascript.JavascriptPluginModule;
+import net.geertvos.k8s.automator.scripting.javascript.JavascriptScript;
 
 @JavascriptPlugin
 public class KubernetesJavascriptPlugin implements JavascriptPluginModule {

@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.scripting.plugins.slack;
+package net.geertvos.k8s.automator.scripting.plugins.slack;
 
 import java.io.IOException;
 

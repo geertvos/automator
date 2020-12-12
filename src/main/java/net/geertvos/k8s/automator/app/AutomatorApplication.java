@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.app;
+package net.geertvos.k8s.automator.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @Import({})
 @ComponentScan(basePackages = {
-		"tv.mediadistillery.automator",
+		"net.geertvos.k8s.automator",
  })
 public class AutomatorApplication extends SpringBootServletInitializer {
 

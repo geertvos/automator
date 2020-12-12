@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.scripting.javascript;
+package net.geertvos.k8s.automator.scripting.javascript;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import tv.mediadistillery.automator.scripting.Script;
+import net.geertvos.k8s.automator.scripting.Script;
 
 public class JavascriptScript implements Script {
 

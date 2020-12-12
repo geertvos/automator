@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.scripting.javascript;
+package net.geertvos.k8s.automator.scripting.javascript;
 
 //Crazy name... plugin is in use for the annotation
 public interface JavascriptPluginModule {

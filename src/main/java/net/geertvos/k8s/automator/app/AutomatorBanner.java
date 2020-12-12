@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.app;
+package net.geertvos.k8s.automator.app;
 
 import java.io.PrintStream;
 

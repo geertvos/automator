@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.scripting.git;
+package net.geertvos.k8s.automator.scripting.git;
 
 import java.io.File;
 import java.util.HashMap;
@@ -15,8 +15,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import tv.mediadistillery.automator.scripting.javascript.AbstractJavascriptSource;
-import tv.mediadistillery.automator.scripting.javascript.JavascriptScript;
+import net.geertvos.k8s.automator.scripting.javascript.AbstractJavascriptSource;
+import net.geertvos.k8s.automator.scripting.javascript.JavascriptScript;
 
 @Component
 public class GitJavascriptSource extends AbstractJavascriptSource {

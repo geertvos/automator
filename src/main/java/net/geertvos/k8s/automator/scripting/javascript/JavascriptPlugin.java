@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.scripting.javascript;
+package net.geertvos.k8s.automator.scripting.javascript;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

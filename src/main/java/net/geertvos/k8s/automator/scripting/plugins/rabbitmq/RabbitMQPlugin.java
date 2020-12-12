@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.scripting.plugins.rabbitmq;
+package net.geertvos.k8s.automator.scripting.plugins.rabbitmq;
 
 import java.util.List;
 
@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.rabbitmq.http.client.Client;
 import com.rabbitmq.http.client.ClientParameters;
 
-import tv.mediadistillery.automator.scripting.javascript.JavascriptPlugin;
-import tv.mediadistillery.automator.scripting.javascript.JavascriptPluginModule;
-import tv.mediadistillery.automator.scripting.javascript.JavascriptScript;
+import net.geertvos.k8s.automator.scripting.javascript.JavascriptPlugin;
+import net.geertvos.k8s.automator.scripting.javascript.JavascriptPluginModule;
+import net.geertvos.k8s.automator.scripting.javascript.JavascriptScript;
 
 @JavascriptPlugin
 public class RabbitMQPlugin implements JavascriptPluginModule {

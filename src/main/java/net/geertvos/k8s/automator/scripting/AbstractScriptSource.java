@@ -1,4 +1,4 @@
-package tv.mediadistillery.automator.scripting;
+package net.geertvos.k8s.automator.scripting;
 
 import java.util.LinkedList;
 import java.util.List;
