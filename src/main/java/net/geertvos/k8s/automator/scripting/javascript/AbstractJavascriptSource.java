@@ -29,7 +29,7 @@ public abstract class AbstractJavascriptSource extends AbstractScriptSource {
 	
 
 	protected void onScriptAdded(JavascriptScript script) {
-		PluginLoader loader = new PluginLoader(script, plugins);
+		JavascriptPluginLoader loader = new JavascriptPluginLoader(script, plugins);
 		script.getContext().setAttribute("plugins", loader, ScriptContext.ENGINE_SCOPE);
 		super.onScriptAdded(script);
 		eventBus.broadcast(new DefaultAutomatorEvent("scripts.new", "New script loaded."));
