@@ -17,23 +17,19 @@ import net.geertvos.k8s.automator.scripting.javascript.JavascriptScript;
 @JavascriptPlugin
 public class KubernetesJavascriptPlugin implements JavascriptPluginModule {
 
-	private final CoreV1Api api;
-
-	public KubernetesJavascriptPlugin() throws IOException {
-	    ApiClient client = null;
-		String kubeConfigPath = System.getenv("KUBE_CONFIG");
-		if(kubeConfigPath == null) {
-			 client = ClientBuilder.cluster().build();
-		} else {
-			client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
-		}
-		Configuration.setDefaultApiClient(client);
-		api = new CoreV1Api();
-	}
-
 	@Override
 	public void initializePlugin(JavascriptScript script) {
 		try {
+			CoreV1Api api = null;
+			ApiClient client = null;
+			String kubeConfigPath = System.getenv("KUBE_CONFIG");
+			if(kubeConfigPath == null) {
+				client = ClientBuilder.cluster().build();
+			} else {
+				client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
+			}
+			Configuration.setDefaultApiClient(client);
+			api = new CoreV1Api();
 		    script.getContext().setAttribute(getName(), api, ScriptContext.ENGINE_SCOPE);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
