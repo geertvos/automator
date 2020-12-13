@@ -16,6 +16,7 @@
 		<springboot.version>2.1.4.RELEASE</springboot.version>
 		<springfox-version>2.9.2</springfox-version>
 		<swagger-annotations.version>1.5.22</swagger-annotations.version>
+        <helm.maven.version>4.2</helm.maven.version>
 	</properties>
 
 	<dependencies>
@@ -125,6 +126,11 @@
 
 	</dependencies>
 
+	<scm>
+		<connection>scm:git:ssh://git@github.com:geertvos/automator.git</connection>
+		<url>scm:git:git@github.com:geertvos/automator.git</url>
+		<tag>{project.version}</tag>
+	</scm>
 
 	<build>
 		<resources>
