@@ -28,6 +28,10 @@ By default Automator monitors a GIT repository and all JS files from the root di
 ```
 GIT_REPO=https://github.com/geertvos/automator-scripts-demo.git
 ```
+There is also the option to just run a single JS file locally, set the JS_FILE environment variable and point it to a file to load. Only ".js" files.
+```
+JS_FILE=/home/user/myscript.js
+```
 
 # APIs #
 A lot of default API implemenations are provided and can be used in the scripting language. The plugin loader can be used to load any plugin.
