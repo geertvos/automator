@@ -22,6 +22,7 @@ var destroy = function() {
   // When the script is unloaded, this destructor is called once.
 }
 ```
+A demo script can be found here: https://github.com/geertvos/automator-scripts-demo/blob/master/k8s-scaling-demo.js
 
 # Configuring scripts #
 By default Automator monitors a GIT repository and all JS files from the root directory are loaded as scripts. Configre the GIT repo to load using environment variables:
