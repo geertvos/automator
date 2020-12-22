@@ -79,17 +79,15 @@ var init = function() {
 ```
 
 ### K8S API ###
-The default Java Kubernetes API client is available as a plugin for you scripts. For documentation of the API, please check: https://github.com/kubernetes-client/java
+TheFabirc8 Java Kubernetes API client is available as a plugin for you scripts. For documentation of the API, please check: https://github.com/fabric8io/kubernetes-client
   
-The plugin will use the service credentials of the pod to get access to the API. Make sure it has the correct permissions. When you run automator locally, point it to your kube config file using an environment variable:
-```
-KUBE_CONFIG=/home/user/.kube/config
-```
+The plugin will use the service credentials of the pod to get access to the API. Make sure it has the correct permissions. When you run automator locally, it will rely on your kube config file.
+
 An example of using the plugin:
 ```
- list = k8s.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
+ list = k8s.services().list();
  for (i=0; i< list.getItems().size(); i++) {
-    var item = list.getItems().get(i);
+    var service = list.getItems().get(i);
     log.info(item.getMetadata().getName());
  }
 ```
