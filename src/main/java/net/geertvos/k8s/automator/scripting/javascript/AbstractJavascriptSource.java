@@ -23,6 +23,7 @@ public abstract class AbstractJavascriptSource extends AbstractScriptSource {
 	protected final AutomatorEventBus eventBus;
 
 	public AbstractJavascriptSource(ApplicationContext context, AutomatorEventBus eventBus) {
+		super();
 		loadPlugins(context);
 		this.eventBus = eventBus;
 	}

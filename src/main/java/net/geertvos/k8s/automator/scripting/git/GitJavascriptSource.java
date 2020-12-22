@@ -13,6 +13,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import net.geertvos.k8s.automator.scripting.events.AutomatorEventBus;
 import net.geertvos.k8s.automator.scripting.javascript.AbstractJavascriptSource;
