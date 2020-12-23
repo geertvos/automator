@@ -2,6 +2,7 @@ package net.geertvos.k8s.automator.scripting.events;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class DefaultAutomatorEvent implements Event {
 
@@ -23,6 +24,12 @@ public class DefaultAutomatorEvent implements Event {
 		return message;
 	}
 
+	public void setAll(Map<String,Object> values) {
+		for(Entry<String,Object> entry : values.entrySet()) {
+			set(entry.getKey(), entry.getValue());
+		}
+	}
+	
 	public void set(String key, Object value) {
 		this.properties.put(key, value);
 	}

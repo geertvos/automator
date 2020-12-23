@@ -55,4 +55,22 @@ public class AutomatorEventBus {
 		}
 	}
 	
+	/**
+	 * Allow broadcasting from the script environment as well
+	 * @param mirror
+	 */
+	public void broadcast(Object mirror) {
+		Map<String,Object> map = (Map)mirror;
+		if(map.containsKey("key")) {
+			String key = map.get("key").toString();
+			String message = "";
+			if(map.containsKey("message")) {
+				message = (String) map.get("message").toString();
+			}
+			DefaultAutomatorEvent event = new DefaultAutomatorEvent(key, message);
+			event.setAll(map);
+			broadcast(event);
+		}
+	}
+	
 }

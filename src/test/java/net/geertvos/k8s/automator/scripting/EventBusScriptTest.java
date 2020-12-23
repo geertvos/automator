@@ -27,6 +27,7 @@ public class EventBusScriptTest {
 	private List<JavascriptPluginModule> plugins = new LinkedList<>();
 	private AutomatorEventBus eventBus = new AutomatorEventBus();
 	private boolean functionCalled = false;
+	private boolean testFunctionCalled = false;
 	private JavascriptScript script;
 	
 	@Before()
@@ -46,6 +47,7 @@ public class EventBusScriptTest {
 		script.execute();
 		eventBus.broadcast(new DefaultAutomatorEvent("scripts.test", "New test event fired."));
 		Assert.assertTrue("Callback should have been called by the engine.", functionCalled);
+		Assert.assertTrue("Test callback from JS event should have been called by the engine.", testFunctionCalled);
 	}
 	
 	@After
@@ -55,6 +57,11 @@ public class EventBusScriptTest {
 	
 	public void callFunction() {
 		functionCalled = true;
+	}
+	
+	
+	public void callTestFunction() {
+		testFunctionCalled = true;
 	}
 	
 	
