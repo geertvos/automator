@@ -68,8 +68,8 @@ var init = function() {
 
 Sending events from the scripting context is also possible:
 ```
-    var event = { key: "test.testevent", myKey: "myString"};
-    eventbus.broadcast(event);
+var event = { key: "test.testevent", myKey: "myString"};
+eventbus.broadcast(event);
 ```
 Automator will convert it into an internal event object and set the key. All other values are copied and are available as properties on the event object.
 
