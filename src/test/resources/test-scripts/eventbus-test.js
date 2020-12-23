@@ -10,12 +10,12 @@ var init = function() {
     plugins.load("eventbus");
     eventbus.register(onReceiveEvent, "scripts");
     eventbus.register(onReceiveTestEvent, "test");
-    var event = { key: "test.testevent" };
-    eventbus.broadcast(event);
 }
 
 
 var run = function() {
+    var event = { key: "test.testevent" };
+    eventbus.broadcast(event);
 }
 
 var destroy = function() {
