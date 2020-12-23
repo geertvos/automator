@@ -70,6 +70,9 @@ public class AutomatorEventBus {
 			DefaultAutomatorEvent event = new DefaultAutomatorEvent(key, message);
 			event.setAll(map);
 			broadcast(event);
+			
+		} else {
+			throw new IllegalArgumentException("Events must have at least a 'key' set: {key: \"aKey\"};");
 		}
 	}
 	
