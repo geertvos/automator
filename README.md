@@ -66,6 +66,13 @@ var init = function() {
 }
 ```
 
+Sending events from the scripting context is also possible:
+```
+var event = { key: "test.testevent", myKey: "myString"};
+eventbus.broadcast(event);
+```
+Automator will convert it into an internal event object and set the key. All other values are copied and are available as properties on the event object.
+
 ## Slack ##
 The Slack API must be configured using the following ENV variables:
 ```
@@ -80,7 +87,7 @@ var init = function() {
 ```
 
 ### K8S API ###
-TheFabirc8 Java Kubernetes API client is available as a plugin for you scripts. For documentation of the API, please check: https://github.com/fabric8io/kubernetes-client
+The Fabric8 Java Kubernetes API client is available as a plugin for you scripts. For documentation of the API, please check: https://github.com/fabric8io/kubernetes-client
   
 The plugin will use the service credentials of the pod to get access to the API. Make sure it has the correct permissions. When you run automator locally, it will rely on your kube config file.
 
