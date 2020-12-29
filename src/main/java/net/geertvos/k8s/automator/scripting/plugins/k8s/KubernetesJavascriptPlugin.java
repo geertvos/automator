@@ -16,12 +16,6 @@ public class KubernetesJavascriptPlugin implements JavascriptPluginModule {
 	public void initializePlugin(JavascriptScript script) {
 		try {
 			KubernetesClient client = new DefaultKubernetesClient();
-//			Deployment deployment = client.apps()
-//										  .deployments()
-//										  .withName("")
-//										  .get();
-//			deployment.setSpec(deployment.getSpec().setReplicas(););
-//			deployment.getSpec().setReplicas();
 			script.getContext().setAttribute(getName(), client, ScriptContext.ENGINE_SCOPE);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
