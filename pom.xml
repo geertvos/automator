@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.geertvos.automator</groupId>
 	<artifactId>automator</artifactId>
-	<name>automator</name>
-	<version>0.0.1-SNAPSHOT</version>
+        <name>automator</name>
+	<version>0.0.2-SNAPSHOT</version>
 	<description>Automate small tasks on your K8S cluster</description>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -157,18 +157,6 @@
 				<configuration>
 					<escapeString>\</escapeString>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${springboot.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
