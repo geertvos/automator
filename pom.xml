@@ -19,12 +19,6 @@
 	</properties>
 
 	<dependencies>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.cloud</groupId>-->
-<!--			<artifactId>spring-cloud-starter-config</artifactId>-->
-<!--			<version>${springboot.version}</version>-->
-<!--		</dependency>-->
-		<!-- Import dependency management from Spring Boot -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -178,102 +172,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<profiles>
-		<profile>
-			<id>kubernetes</id>
-			<properties>
-				<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
-				<packaging.type>jar</packaging.type>
-				<docker.tag>${project.version}.${maven.build.timestamp}</docker.tag>
-				<jkube.rolling>true</jkube.rolling>
-				<jkube.generator.name>mediadistillery/${project.artifactId}:${docker.tag}</jkube.generator.name>
-				<jkube.recreate>true</jkube.recreate>
-				<project.config.manager>spring.cloud</project.config.manager>
-				<spring.cloud.config.enabled>true</spring.cloud.config.enabled>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>buildnumber-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>initialize</phase>
-								<goals>
-									<goal>create</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<doCheck>false</doCheck>
-							<doUpdate>false</doUpdate>
-							<timestampFormat>{0,date,yyyy-MM-dd HH:mm:ss}</timestampFormat>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.eclipse.jkube</groupId>
-						<artifactId>kubernetes-maven-plugin</artifactId>
-						<version>1.0.0-rc-1</version>
-						<executions>
-							<execution>
-								<id>install</id>
-								<phase>install</phase>
-								<goals>
-									<goal>resource</goal>
-									<goal>helm</goal>
-									<goal>build</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>deploy</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>push</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>com.kiwigrid</groupId>
-						<artifactId>helm-maven-plugin</artifactId>
-						<version>${helm.maven.version}</version>
-						<configuration>
-							<chartVersion>${docker.tag}</chartVersion>
-							<chartDirectory>${project.basedir}</chartDirectory>
-							<uploadRepoSnapshot>
-								<name>snapshot-repo</name>
-								<type>CHARTMUSEUM</type>
-								<url>http://chartmuseum/api/charts</url>
-							</uploadRepoSnapshot>
-							<uploadRepoStable>
-								<name>stable-repo</name>
-								<type>CHARTMUSEUM</type>
-								<url>http://chartmuseum/api/charts</url>
-							</uploadRepoStable>
-							<useLocalHelmBinary>true</useLocalHelmBinary>
-							<chartDirectory>${project.basedir}/target/classes/${project.artifactId}</chartDirectory>
-							<appVersion>${project.version}</appVersion>
-							<outputDirectory>${project.build.directory}</outputDirectory>
-						</configuration>
-						<executions>
-							<execution>
-								<id>install</id>
-								<phase>install</phase>
-								<goals>
-									<goal>package</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>deploy</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>upload</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>
