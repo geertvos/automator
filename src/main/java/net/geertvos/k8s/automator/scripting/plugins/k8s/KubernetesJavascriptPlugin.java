@@ -2,6 +2,7 @@ package net.geertvos.k8s.automator.scripting.plugins.k8s;
 
 import javax.script.ScriptContext;
 
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import net.geertvos.k8s.automator.scripting.javascript.JavascriptPlugin;
