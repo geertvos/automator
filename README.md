@@ -116,3 +116,33 @@ for(i=0; i < nodes.size(); i++) {
     log.info("RabbitMQ Node: "+node.getName()+" memory used: "+node.getMemoryUsed());
 }
 ```
+
+## Adding your custom API ##
+Adding new API plugins is extremely simple. Just mark your class with the correct annotation and inject your API object into the script. See example below. The plugin's name will be available in the scripting language. Make sure that you add your classpath to the Spring boot scanner by modifying this property in application.properties:
+```
+scan.packages=net.geertvos.k8s.automator, com.myapi.plugin
+```
+
+An example plugin:
+```
+@JavascriptPlugin
+public class MyPlugin implements JavascriptPluginModule {
+
+    @Override
+    public void initializePlugin(JavascriptScript script) {
+        try {
+             MyApi api = new MyApi();
+            script.getContext().setAttribute(getName(), api, ScriptContext.ENGINE_SCOPE);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String getName() {
+        return "myapi";
+    }
+
+}
+
+```
