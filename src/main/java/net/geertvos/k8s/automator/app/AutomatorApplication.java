@@ -8,27 +8,19 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.client.RestTemplate;
 
 import net.geertvos.k8s.automator.scripting.ScriptSource;
 import net.geertvos.k8s.automator.scripting.events.AutomatorEventBus;
 import net.geertvos.k8s.automator.scripting.git.GitJavascriptSource;
 import net.geertvos.k8s.automator.scripting.local.LocalJavascriptSource;
-import org.springframework.web.client.RestTemplate;
-import tv.mediadistillery.foundation.boot2.configuration.SpringCloudConfigurationManager;
-import tv.mediadistillery.foundation.configuration.BasicConfigurationManager;
-import tv.mediadistillery.foundation.configuration.ConfigurationManager;
-
-import java.util.HashMap;
 
 
 @EnableScheduling
 @SpringBootApplication
 @Import({})
-@ComponentScan(basePackages = {
-		"net.geertvos.k8s.automator",
- })
+@ComponentScan(basePackages = "${scan.packages}")
 public class AutomatorApplication extends SpringBootServletInitializer {
 
     @Override
@@ -51,15 +43,6 @@ public class AutomatorApplication extends SpringBootServletInitializer {
         return new RestTemplate();
     }
 
-    @Bean
-    public ConfigurationManager configurationManager(Environment environment) {
-        String configSource = System.getenv("CONFIG_SOURCE");
-        if (configSource != null && configSource.equals("spring.cloud")) {
-            return new SpringCloudConfigurationManager(environment);
-        }
-        return new BasicConfigurationManager(new HashMap<>(System.getenv()));
-    }
-    
     public static void main(final String[] args) {
     	SpringApplication application = new SpringApplication(AutomatorApplication.class);
     	application.setBanner(new AutomatorBanner());

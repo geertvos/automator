@@ -5,7 +5,7 @@
 	<groupId>net.geertvos.automator</groupId>
 	<artifactId>automator</artifactId>
 	<name>automator</name>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<description>Automate small tasks on your K8S cluster</description>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -18,34 +18,15 @@
 		<helm.maven.version>4.2</helm.maven.version>
 	</properties>
 
+	<build>
+		<plugins>
+		</plugins>
+
+
+	</build>
+
+
 	<dependencies>
-<!--		MD dependencies; TODO: export to separate project/module-->
-		<dependency>
-			<groupId>tv.mediadistillery.foundation</groupId>
-			<artifactId>md-utils-springboot2</artifactId>
-			<version>1.103.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>tv.mediadistillery.foundation</groupId>
-					<artifactId>md-storage-service</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>tv.mediadistillery.foundation</groupId>
-			<artifactId>md-streamconfig-client</artifactId>
-			<version>1.103.0-SNAPSHOT</version>
-		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.cloud</groupId>-->
-<!--			<artifactId>spring-cloud-starter-config</artifactId>-->
-<!--			<version>${springboot.version}</version>-->
-<!--		</dependency>-->
-		<!-- Import dependency management from Spring Boot -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -60,6 +41,7 @@
 					<groupId>com.fasterxml.jackson.core</groupId>
 				</exclusion>
 			</exclusions>
+
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -158,78 +140,22 @@
 		<tag>{project.version}</tag>
 	</scm>
 
-	<build>
-		<resources>
-			<resource>
-				<directory>${basedir}/src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-			<resource>
-				<directory>src/main/generated-resources</directory>
-				<filtering>true</filtering>
-			</resource>
-			<resource>
-				<directory>${basedir}/src/main/version</directory>
-				<includes>
-					<include>**/*.properties</include>
-				</includes>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.1.0</version>
-				<configuration>
-					<escapeString>\</escapeString>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${springboot.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
 	<profiles>
 		<profile>
-			<id>kubernetes</id>
-			<properties>
-				<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
-				<packaging.type>jar</packaging.type>
-				<docker.tag>${project.version}.${maven.build.timestamp}</docker.tag>
-				<jkube.rolling>true</jkube.rolling>
-				<jkube.generator.name>mediadistillery/${project.artifactId}:${docker.tag}</jkube.generator.name>
-				<jkube.recreate>true</jkube.recreate>
-				<project.config.manager>spring.cloud</project.config.manager>
-				<spring.cloud.config.enabled>true</spring.cloud.config.enabled>
-			</properties>
+			<id>docker</id>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>buildnumber-maven-plugin</artifactId>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
+						<version>2.1.4.RELEASE</version>
 						<executions>
 							<execution>
-								<phase>initialize</phase>
 								<goals>
-									<goal>create</goal>
+									<goal>repackage</goal>
 								</goals>
 							</execution>
 						</executions>
-						<configuration>
-							<doCheck>false</doCheck>
-							<doUpdate>false</doUpdate>
-							<timestampFormat>{0,date,yyyy-MM-dd HH:mm:ss}</timestampFormat>
-						</configuration>
 					</plugin>
 					<plugin>
 						<groupId>org.eclipse.jkube</groupId>
@@ -254,47 +180,11 @@
 							</execution>
 						</executions>
 					</plugin>
-					<plugin>
-						<groupId>com.kiwigrid</groupId>
-						<artifactId>helm-maven-plugin</artifactId>
-						<version>${helm.maven.version}</version>
-						<configuration>
-							<chartVersion>${docker.tag}</chartVersion>
-							<chartDirectory>${project.basedir}</chartDirectory>
-							<uploadRepoSnapshot>
-								<name>snapshot-repo</name>
-								<type>CHARTMUSEUM</type>
-								<url>http://chartmuseum/api/charts</url>
-							</uploadRepoSnapshot>
-							<uploadRepoStable>
-								<name>stable-repo</name>
-								<type>CHARTMUSEUM</type>
-								<url>http://chartmuseum/api/charts</url>
-							</uploadRepoStable>
-							<useLocalHelmBinary>true</useLocalHelmBinary>
-							<chartDirectory>${project.basedir}/target/classes/${project.artifactId}</chartDirectory>
-							<appVersion>${project.version}</appVersion>
-							<outputDirectory>${project.build.directory}</outputDirectory>
-						</configuration>
-						<executions>
-							<execution>
-								<id>install</id>
-								<phase>install</phase>
-								<goals>
-									<goal>package</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>deploy</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>upload</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
+
 				</plugins>
 			</build>
+
 		</profile>
 	</profiles>
+
 </project>
