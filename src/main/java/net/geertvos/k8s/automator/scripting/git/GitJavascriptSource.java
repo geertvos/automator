@@ -91,6 +91,7 @@ public class GitJavascriptSource extends AbstractJavascriptSource {
 	@Scheduled(fixedRate = 300000)
 	public void pullRepo() {
 		PullCommand pullCmd = git.pull();
+		pullCmd.setTransportConfigCallback(transportConfigCallback);
 		try {
 		    pullCmd.call();
 		    checkFiles();
