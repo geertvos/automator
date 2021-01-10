@@ -59,6 +59,8 @@ public class GitJavascriptSource extends AbstractJavascriptSource {
 				@Override
 				protected void configure(Host hc, Session session) {
 					super.configure(hc, session);
+					//TODO: Fix with template support in K8s
+					session.setConfig("StrictHostKeyChecking", "no");
 				}
 	
 				@Override
@@ -66,6 +68,7 @@ public class GitJavascriptSource extends AbstractJavascriptSource {
 					super.configureJSch(jsch);
 					if(hasSpecificIdentity()) {
 						try {
+							LOG.info("Loading key file {}", getSpecificIdentity());
 							jsch.addIdentity(getSpecificIdentity());
 						} catch (JSchException e) {
 							throw new IllegalArgumentException("SSH identity file cannot be added.", e);
