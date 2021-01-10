@@ -29,6 +29,10 @@ By default Automator monitors a GIT repository and all JS files from the root di
 ```
 GIT_REPO=https://github.com/geertvos/automator-scripts-demo.git
 ```
+If you wish to use private repositories, provide an SSH keyfile file for Automator to login on your repository:
+```
+GIT_KEY=/home/me/.ssh/private_key
+```
 There is also the option to just run a single JS file locally, set the JS_FILE environment variable and point it to a file to load. Only ".js" files.
 ```
 JS_FILE=/home/user/myscript.js
