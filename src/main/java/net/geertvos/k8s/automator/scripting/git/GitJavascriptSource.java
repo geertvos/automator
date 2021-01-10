@@ -9,11 +9,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.OpenSshConfig.Host;
+import org.eclipse.jgit.transport.SshTransport;
+import org.eclipse.jgit.transport.Transport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 
 import net.geertvos.k8s.automator.scripting.events.AutomatorEventBus;
 import net.geertvos.k8s.automator.scripting.javascript.AbstractJavascriptSource;
@@ -26,6 +34,7 @@ public class GitJavascriptSource extends AbstractJavascriptSource {
 	private final Map<String, JavascriptScript> scripts = new HashMap<>();
 	private File localPath;
 	private Git git;
+	private TransportConfigCallback transportConfigCallback;
 
 	@Autowired
 	public GitJavascriptSource(ApplicationContext context, AutomatorEventBus eventBus) {
@@ -38,8 +47,42 @@ public class GitJavascriptSource extends AbstractJavascriptSource {
 
 	@Override
 	public void init() {
+		initGitTransport();
 		cloneRepo();
 		checkFiles();
+	}
+
+	private void initGitTransport() {
+		if(sshRequired()) {
+			JschConfigSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
+				
+				@Override
+				protected void configure(Host hc, Session session) {
+					super.configure(hc, session);
+				}
+	
+				@Override
+				protected void configureJSch(JSch jsch) {
+					super.configureJSch(jsch);
+					if(hasSpecificIdentity()) {
+						try {
+							jsch.addIdentity(getSpecificIdentity());
+						} catch (JSchException e) {
+							throw new IllegalArgumentException("SSH identity file cannot be added.", e);
+						}
+					}
+				}
+			};
+			transportConfigCallback = new TransportConfigCallback() {
+				
+				@Override
+				public void configure(Transport transport) {
+					SshTransport sshTransport = ( SshTransport )transport;
+				    sshTransport.setSshSessionFactory( sshSessionFactory );
+					
+				}
+			};		
+		}
 	}
 
 	@Scheduled(fixedRate = 300000)
@@ -59,9 +102,10 @@ public class GitJavascriptSource extends AbstractJavascriptSource {
 	        if(!localPath.delete()) {
 	        }
 			LOG.info("Cloning from " + remoteUrl + " to " + localPath);
-	        git = Git.cloneRepository()
+			git = Git.cloneRepository()
 	                .setURI(remoteUrl)
 	                .setDirectory(localPath)
+	                .setTransportConfigCallback(transportConfigCallback)
 	                .call();
 		} catch(Exception e) {
 			throw new RuntimeException(e);
@@ -113,5 +157,19 @@ public class GitJavascriptSource extends AbstractJavascriptSource {
 		}
 	}
 
+	
+	boolean sshRequired() {
+		return remoteUrl.startsWith("git@");
+	}
+	
+	boolean hasSpecificIdentity() {
+		return System.getenv("GIT_KEY") != null;
+
+	}
+
+	String getSpecificIdentity() {
+		return System.getenv("GIT_KEY");
+
+	}
 
 }
