@@ -2,6 +2,7 @@ package net.geertvos.k8s.automator.scripting.javascript;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -86,15 +87,22 @@ public class JavascriptScript implements Script {
 		LOG.error("Unhandled exception while executing the Javascript script '"+name+"'", t);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean requiresSchedule() {
-		return ctx.getAttribute("cronSchedule") != null;
+		Map<String,Object> settings = (Map<String, Object>) ctx.getAttribute("settings");
+		if(settings != null && settings.containsKey("cronSchedule")) {
+			return true;
+		}
+		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public String getCronSchedule() throws Exception {
-		if(ctx.getAttribute("cronSchedule") != null) {
-			return String.valueOf(engine.eval("cronSchedule()", ctx));
+		Map<String,Object> settings = (Map<String, Object>) ctx.getAttribute("settings");
+		if(settings != null && settings.containsKey("cronSchedule")) {
+			return String.valueOf(settings.get("cronSchedule"));
 		}
 		return null;
 	}
