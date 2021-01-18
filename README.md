@@ -158,5 +158,13 @@ public class MyPlugin implements JavascriptPluginModule {
     }
 
 }
+```
 
+Now each script can request the myapi plugin and have the object injected. 
+
+```
+var init = function() {
+    plugins.load("myapi");
+    myapi.callJavaMethod();
+}
 ```
