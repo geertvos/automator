@@ -122,13 +122,13 @@ for(i=0; i < nodes.size(); i++) {
 ```
 
 ## Cron support ##
-Each script normally runs every 60s. However, for some cases you might want to schedule your script. On script initialization the engine will check if the function cronSchedule() exists. If it exists, the string it returns will be used as cron schedule. The pattern is a list of six single space-separated fields: representing: second, minute, hour, day, month, weekday. Month and weekday names can be given as the first three letters of the English names. It follows the cron tab spec. Documentation can be found here: https://www.manpagez.com/man/5/crontab/
+Each script normally runs every 60s. However, for some cases you might want to schedule your script. On script initialization the engine will check if the settings object exists. If it exists, the cronSchedule setting will be used as cron schedule. The pattern is a list of six single space-separated fields: representing: second, minute, hour, day, month, weekday. Month and weekday names can be given as the first three letters of the English names. It follows the cron tab spec. Documentation can be found here: https://www.manpagez.com/man/5/crontab/
 
 ```
-var cronSchedule = function() {
+var settings = {
     //Run everyday at 10:00
-    return "0 0 10 * * *";
-}
+	cronSchedule: "0 0 10 * * *"
+};
 ```
 
 ## Adding your custom API ##
