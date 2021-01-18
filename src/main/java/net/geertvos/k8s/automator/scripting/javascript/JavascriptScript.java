@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
 import org.apache.commons.io.FileUtils;
@@ -83,6 +84,19 @@ public class JavascriptScript implements Script {
 	@Override
 	public void onError(Throwable t) {
 		LOG.error("Unhandled exception while executing the Javascript script '"+name+"'", t);
+	}
+
+	@Override
+	public boolean requiresSchedule() {
+		return ctx.getAttribute("cronSchedule") != null;
+	}
+
+	@Override
+	public String getCronSchedule() throws Exception {
+		if(ctx.getAttribute("cronSchedule") != null) {
+			return String.valueOf(engine.eval("cronSchedule()", ctx));
+		}
+		return null;
 	}
 
 }
