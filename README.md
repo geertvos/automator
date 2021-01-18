@@ -121,6 +121,16 @@ for(i=0; i < nodes.size(); i++) {
 }
 ```
 
+## Cron support ##
+Each script normally runs every 60s. However, for some cases you might want to schedule your script. On script initialization the engine will check if the function cronSchedule() exists. If it exists, the string it returns will be used as cron schedule. It follows the cron tab spec. Documentation can be found here: https://www.manpagez.com/man/5/crontab/
+
+```
+var cronSchedule = function() {
+    //Run everyday at 10:00
+    return "0 0 10 * * *";
+}
+```
+
 ## Adding your custom API ##
 Adding new API plugins is extremely simple. Just mark your class with the correct annotation and inject your API object into the script. See example below. The plugin's name will be available in the scripting language. Make sure that you add your classpath to the Spring boot scanner by modifying this property in application.properties:
 ```
