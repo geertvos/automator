@@ -127,7 +127,7 @@ Each script normally runs every 60s. However, for some cases you might want to s
 ```
 var settings = {
     //Run everyday at 10:00
-	cronSchedule: "0 0 10 * * *"
+    cronSchedule: "0 0 10 * * *"
 };
 ```
 
