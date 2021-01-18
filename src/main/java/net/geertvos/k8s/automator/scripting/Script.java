@@ -12,4 +12,7 @@ public interface Script {
 	
 	String getName();
 	
+	boolean requiresSchedule();
+	
+	String getCronSchedule() throws Exception;
 }
