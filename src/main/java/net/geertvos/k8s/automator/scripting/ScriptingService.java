@@ -59,7 +59,6 @@ public class ScriptingService implements ScriptSourceListener {
 	
 	@Override
 	public void onScriptAdded(Script script) {
-		LOG.info("Initializing script {}", script.getName());
 		try {
 			script.init();
 			if (script.requiresSchedule()) {
