@@ -137,6 +137,12 @@
 			<version>4.13.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.openjdk.nashorn/nashorn-core -->
+		<dependency>
+			<groupId>org.openjdk.nashorn</groupId>
+			<artifactId>nashorn-core</artifactId>
+			<version>15.4</version>
+		</dependency>
 
 	</dependencies>
 

@@ -19,35 +19,34 @@ public class LocalJavascriptSource extends AbstractJavascriptSource {
 	@Autowired
 	public LocalJavascriptSource(ApplicationContext context, AutomatorEventBus eventBus, String localFile) {
 		super(context, eventBus); 
-		 if(localFile == null) {
+		 if (localFile == null) {
 			 throw new IllegalArgumentException("localFile cannot be null.");
 		 }
-		 this.localFile = localFile;
+		 this.localFile = localFile.trim();
 	}
 
 	@Override
 	public void init() {
 		File newScript = new File(localFile);
-		if(isJavascriptFile(newScript)) {
+		if (isJavascriptFile(newScript)) {
 			loadScript("local", newScript);
+		} else {
+			throw new IllegalArgumentException("File " + localFile + " is not a javascript file.");
 		}
 	}
-
 	
-	private boolean isJavascriptFile(File file) {
+	private boolean isJavascriptFile(final File file) {
 		return file.getName().endsWith(".js");
 	}
-
 	
-	private void loadScript(String name, File file) {
+	private void loadScript(final String name, final File file) {
 		try {
-			LOG.info("Loading script" + name);
+			LOG.info("Loading script {}", name);
 			JavascriptScript script = new JavascriptScript(name, file);
 			onScriptAdded(script);
 		} catch (Exception e) {
-			LOG.error("Unable to load script: " + file, e);
+			throw new IllegalArgumentException("Unable to load script: " + file, e);
 		}
 	}
-
 
 }
