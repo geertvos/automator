@@ -46,11 +46,11 @@ public class ScriptingService implements ScriptSourceListener {
 	
 	@Scheduled(fixedRate=60000)
 	public void runScripts() {
-		LOG.info("Executing "+activeScripts.size()+" scripts.");
-		for(Script script : activeScripts) {
+		LOG.info("Executing {} scripts.", activeScripts.size());
+		for (Script script : activeScripts) {
 			try {
 				script.execute();
-			} catch(Throwable t) {
+			} catch(Exception t) {
 				script.onError(t);
 			}
 		}
@@ -59,9 +59,10 @@ public class ScriptingService implements ScriptSourceListener {
 	
 	@Override
 	public void onScriptAdded(Script script) {
+		LOG.info("Initializing script {}", script.getName());
 		try {
 			script.init();
-			if(script.requiresSchedule()) {
+			if (script.requiresSchedule()) {
 				String cron = script.getCronSchedule();
 				CronTask task = new CronTask(new ScriptRunnable(script), script.getCronSchedule());
 				ScheduledTask scheduledTask = registrar.scheduleCronTask(task);
@@ -70,14 +71,14 @@ public class ScriptingService implements ScriptSourceListener {
 			} else {
 				activeScripts.add(script);
 			}
-		} catch (Throwable e) {
-			LOG.error("Script initialization for script "+script.getName()+" failed.", e);
+		} catch (Exception e) {
+			LOG.error("Script initialization for script {} failed.", script.getName(), e);
 		}
 	}
 
 	@Override
 	public void onScriptRemoved(Script script) {
-		if(script.requiresSchedule()) {
+		if (script.requiresSchedule()) {
 			ScheduledTask task = taskHandles.get(script);
 			task.cancel();
 		} else {
@@ -85,9 +86,9 @@ public class ScriptingService implements ScriptSourceListener {
 		}
 		try {
 			script.destroy();
-		} catch(Throwable e) {
-			LOG.error("Script destructor for script "+script.getName()+" failed.", e);
+		} catch(Exception e) {
+			LOG.error("Script destructor for script {} failed.", script.getName(), e);
 		}
 	}
-	
+
 }
