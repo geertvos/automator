@@ -1,6 +1,5 @@
 package net.geertvos.k8s.automator.scripting.plugins.rabbitmq_shovel;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -38,9 +37,24 @@ public class ShovelClient {
     private static final String SHOVEL_FORMAT = "amqp://%s:%s@%s/%s";
     private static final String SHOVEL_URL_FORMAT = "http://%s:%s/api/parameters/shovel/%%2F/%s";
     private static final String HTTP = "http://";
+    private String sourceHost;
+    private String sourceUsername;
+    private String sourcePassword;
+    private String destHost;
+    private String destUsername;
+    private String destPassword;
 
-    public boolean createShovel(String srcQueue, String exchangeName, String sourceUsername, String sourcePassword, String sourceHost,
-            String destUsername, String destPassword, String destHost, String vhost) throws IOException {
+    public void init(String sourceUsername, String sourcePassword, String sourceHost,
+                           String destUsername, String destPassword, String destHost) {
+        this.sourceUsername = sourceUsername;
+        this.sourcePassword = sourcePassword;
+        this.sourceHost = sourceHost;
+        this.destUsername = destUsername;
+        this.destPassword = destPassword;
+        this.destHost = destHost;
+    }
+
+    public boolean createShovel(String vhost, String srcQueue, String exchangeName) throws IOException {
         LOG.info("Creating shovel for queue {}", srcQueue);
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(sourceHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(sourceUsername, sourcePassword));
@@ -89,7 +103,7 @@ public class ShovelClient {
         return false;
     }
 
-    public boolean deleteAllShovels(String sourceUsername, String sourcePassword, String sourceHost, String id) throws IOException {
+    public boolean deleteAllShovels(String id) throws IOException {
         LOG.info("Deleting all shovels for stream {}", id);
 
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
@@ -107,7 +121,7 @@ public class ShovelClient {
             HttpEntity entity = getResponse.getEntity();
             if (entity == null) {
                 LOG.info("No shovels found, nothing to delete");
-                return true; // No shovels found, nothing to delete
+                return true;
             }
             String jsonString = EntityUtils.toString(entity);
             JSONArray jsonArray = new JSONArray(jsonString);
@@ -135,13 +149,13 @@ public class ShovelClient {
     }
 
 
-    public List<String> getQueueBindings(String host, String vhost, String username, String password, String queueName) throws IOException {
+    public List<String> getQueueBindings(String vhost, String queueName) throws IOException {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(new AuthScope(host, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(username, password));
+        credsProvider.setCredentials(new AuthScope(destHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(destUsername, destPassword));
         try (CloseableHttpClient httpClient = HttpClients.custom()
                 .setDefaultCredentialsProvider(credsProvider)
                 .build()) {
-            String url = HTTP + host + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/queues/" + vhost + "/" + queueName + "/bindings";
+            String url = HTTP + destHost + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/queues/" + vhost + "/" + queueName + "/bindings";
             HttpGet request = new HttpGet(url);
             HttpResponse response = httpClient.execute(request);
             HttpEntity entity = response.getEntity();
@@ -159,14 +173,14 @@ public class ShovelClient {
         return Collections.emptyList();
     }
 
-    public Boolean createExchange(String host, String vhost, String username, String password, String exchangeName) throws IOException {
+    public Boolean createExchange(String vhost, String exchangeName) throws IOException {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(new AuthScope(host, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(username, password));
+        credsProvider.setCredentials(new AuthScope(sourceHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(sourceUsername, sourcePassword));
         try (CloseableHttpClient httpClient = HttpClients.custom()
                 .setDefaultCredentialsProvider(credsProvider)
                 .build()) {
             // Check if the exchange already exists
-            String url = HTTP + host + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/exchanges/" + vhost + "/" + exchangeName;
+            String url = HTTP + sourceHost + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/exchanges/" + vhost + "/" + exchangeName;
             HttpGet getRequest = new HttpGet(url);
             HttpResponse getResponse = httpClient.execute(getRequest);
             if (getResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -189,20 +203,17 @@ public class ShovelClient {
         return false;
     }
 
-    public Boolean createBinding(String host,
-                                 String vhost,
-                                 String username,
-                                 String password,
+    public Boolean createBinding(String vhost,
                                  String exchangeName,
                                  String queueName,
                                  String routingKey,
                                  String destination) throws IOException {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(new AuthScope(host, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(username, password));
+        credsProvider.setCredentials(new AuthScope(sourceHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(sourceUsername, sourcePassword));
         try (CloseableHttpClient httpClient = HttpClients.custom()
                 .setDefaultCredentialsProvider(credsProvider)
                 .build()) {
-            String url = HTTP + host + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/bindings/" + vhost + "/e/" + exchangeName + "/q/" + queueName;
+            String url = HTTP + sourceHost + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/bindings/" + vhost + "/e/" + exchangeName + "/q/" + queueName;
             HttpPost request = new HttpPost(url);
             request.setHeader(CONTENT_TYPE, APPLICATION_JSON);
             JSONObject bindingJson = new JSONObject();
@@ -222,18 +233,13 @@ public class ShovelClient {
         return false;
     }
 
-    public Boolean createQueue(
-            String host,
-            String vhost,
-            String username,
-            String password,
-            String queueName) throws IOException {
+    public Boolean createQueue(String vhost, String queueName) throws IOException {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(new AuthScope(host, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(username, password));
+        credsProvider.setCredentials(new AuthScope(sourceHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(sourceUsername, sourcePassword));
         try (CloseableHttpClient httpClient = HttpClients.custom()
                 .setDefaultCredentialsProvider(credsProvider)
                 .build()) {
-            HttpPut request = getHttpPut(host, vhost, queueName);
+            HttpPut request = getHttpPut(vhost, queueName);
             HttpResponse response = httpClient.execute(request);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_CREATED || statusCode == HttpStatus.SC_NO_CONTENT) {
@@ -246,14 +252,13 @@ public class ShovelClient {
     }
 
     @NotNull
-    private static HttpPut getHttpPut(String host, String vhost, String queueName) throws UnsupportedEncodingException {
-        String url = HTTP + host + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/queues/" + vhost + "/" + queueName;
+    private HttpPut getHttpPut(String vhost, String queueName) throws UnsupportedEncodingException {
+        String url = HTTP + sourceHost + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/queues/" + vhost + "/" + queueName;
         HttpPut request = new HttpPut(url);
         request.setHeader(CONTENT_TYPE, APPLICATION_JSON);
         JSONObject queueJson = new JSONObject();
         queueJson.put("auto_delete", false);
         queueJson.put("durable", true);
-//            queueJson.put("arguments", new JSONObject().put("x-dead-letter-exchange", deadLetterExchange).put("x-dead-letter-routing-key", deadLetterRoutingKey));
         request.setEntity(new StringEntity(queueJson.toString()));
         return request;
     }
