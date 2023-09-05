@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 public class ShovelClient {
     private static final Logger LOG = LogManager.getLogger(ShovelClient.class);
 
@@ -44,6 +45,25 @@ public class ShovelClient {
     private String destUsername;
     private String destPassword;
 
+    public enum ResponseCode {
+        OK(200),
+        CREATED(201),
+        NO_CONTENT(204),
+        BAD_REQUEST(400),
+        NOT_FOUND(404),
+        INTERNAL_SERVER_ERROR(500);
+
+        private final int code;
+
+        ResponseCode(int code) {
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+    }
+
     public void init(String sourceUsername, String sourcePassword, String sourceHost,
                            String destUsername, String destPassword, String destHost) {
         this.sourceUsername = sourceUsername;
@@ -54,8 +74,8 @@ public class ShovelClient {
         this.destHost = destHost;
     }
 
-    public boolean createShovel(String vhost, String srcQueue, String exchangeName) throws IOException {
-        LOG.info("Creating shovel for queue {}", srcQueue);
+    public ResponseCode createShovel(String vhost, JSONObject bindingJson) throws IOException {
+        LOG.info("Creating shovel for queue {}", bindingJson.get("src-queue"));
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(sourceHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(sourceUsername, sourcePassword));
         try (CloseableHttpClient httpClient = HttpClients.custom()
@@ -63,7 +83,7 @@ public class ShovelClient {
                 .build()) {
             String srcUri = String.format(SHOVEL_FORMAT, sourceUsername, sourcePassword, sourceHost, vhost);
             String destUri = String.format(SHOVEL_FORMAT, destUsername, destPassword, destHost, vhost);
-            String shovelName = "shovel_" + srcQueue;
+            String shovelName = "shovel_" + bindingJson.get("src-queue");
 
             // Check if the shovel already exists
             String checkUrl = String.format(SHOVEL_URL_FORMAT, sourceHost, RABBITMQ_MANAGEMENT_PORT, shovelName);
@@ -72,20 +92,10 @@ public class ShovelClient {
             int checkStatusCode = checkResponse.getStatusLine().getStatusCode();
             if (checkStatusCode == HttpStatus.SC_OK) {
                 // Shovel already exists, no need to create it again
-                return true;
+                return ResponseCode.OK;
             }
-            JSONObject bindingJson = new JSONObject();
             bindingJson.put("src-uri", srcUri);
-            bindingJson.put("src-queue", srcQueue);
             bindingJson.put("dest-uri", destUri);
-            if (!exchangeName.isEmpty()) {
-                bindingJson.put("dest-exchange", exchangeName);
-            } else {
-                bindingJson.put("dest-queue", srcQueue);
-            }
-            bindingJson.put("add-forward-headers", false);
-            bindingJson.put("ack-mode", "on-confirm");
-            bindingJson.put("delete-after", "never");
             JSONObject valueJson = new JSONObject();
             valueJson.put("value", bindingJson);
             String createUrl = String.format(SHOVEL_URL_FORMAT, sourceHost, RABBITMQ_MANAGEMENT_PORT, shovelName);
@@ -95,59 +105,37 @@ public class ShovelClient {
             HttpResponse response = httpClient.execute(httpPut);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_CREATED) {
-                return true;
+                return ResponseCode.CREATED;
             } else {
                 LOG.error("Failed to create shovel. Status code: {}", statusCode);
             }
         }
-        return false;
+        return ResponseCode.BAD_REQUEST;
     }
 
-    public boolean deleteAllShovels(String id) throws IOException {
-        LOG.info("Deleting all shovels for stream {}", id);
-
+    public ResponseCode deleteShovel(String shovelName) throws IOException {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(sourceHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(sourceUsername, sourcePassword));
         try (CloseableHttpClient httpClient = HttpClients.custom()
                 .setDefaultCredentialsProvider(credsProvider)
                 .build()) {
-            String baseUrl = String.format("http://%s:%s/api/parameters/shovel/%%2F", sourceHost, RABBITMQ_MANAGEMENT_PORT);
-            HttpGet getRequest = new HttpGet(baseUrl);
-            HttpResponse getResponse = httpClient.execute(getRequest);
-            if (getResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                LOG.error("Failed to get shovels. Status code: {}", getResponse.getStatusLine().getStatusCode());
-                return false;
+            LOG.info("Deleting shovel {}", shovelName);
+            String deleteUrl = String.format(SHOVEL_URL_FORMAT, sourceHost, RABBITMQ_MANAGEMENT_PORT, shovelName);
+            HttpDelete deleteRequest = new HttpDelete(deleteUrl);
+            HttpResponse deleteResponse;
+            try {
+                deleteResponse = httpClient.execute(deleteRequest);
+            } catch (IOException e) {
+                LOG.error("Failed to execute delete request for shovel {}", shovelName, e);
+                return ResponseCode.INTERNAL_SERVER_ERROR;
             }
-            HttpEntity entity = getResponse.getEntity();
-            if (entity == null) {
-                LOG.info("No shovels found, nothing to delete");
-                return true;
+            if (deleteResponse.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+                LOG.warn("Shovel {} does not exist, nothing was deleted!", shovelName);
+                return ResponseCode.NOT_FOUND;
             }
-            String jsonString = EntityUtils.toString(entity);
-            JSONArray jsonArray = new JSONArray(jsonString);
-            jsonArray.forEach(shovelObj -> {
-                JSONObject jsonObject = (JSONObject) shovelObj;
-                String shovelName = jsonObject.getString("name");
-                if (shovelName.endsWith(id + "-queue")) {
-                    LOG.info("Deleting shovel {}", shovelName);
-                    String deleteUrl = String.format(SHOVEL_URL_FORMAT, sourceHost, RABBITMQ_MANAGEMENT_PORT, shovelName);
-                    HttpDelete deleteRequest = new HttpDelete(deleteUrl);
-                    HttpResponse deleteResponse;
-                    try {
-                        deleteResponse = httpClient.execute(deleteRequest);
-                    } catch (IOException e) {
-                        LOG.error("Failed to execute delete request for shovel {}", shovelName, e);
-                        return;
-                    }
-                    if (deleteResponse.getStatusLine().getStatusCode() != HttpStatus.SC_NO_CONTENT) {
-                        LOG.error("Failed to delete shovel {}", shovelName);
-                    }
-                }
-            });
         }
-        return true;
+        return ResponseCode.OK;
     }
-
 
     public List<String> getQueueBindings(String vhost, String queueName) throws IOException {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
@@ -173,7 +161,7 @@ public class ShovelClient {
         return Collections.emptyList();
     }
 
-    public Boolean createExchange(String vhost, String exchangeName) throws IOException {
+    public ResponseCode createExchange(String vhost, String exchangeName, JSONObject exchangeJson) throws IOException {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(sourceHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(sourceUsername, sourcePassword));
         try (CloseableHttpClient httpClient = HttpClients.custom()
@@ -185,80 +173,69 @@ public class ShovelClient {
             HttpResponse getResponse = httpClient.execute(getRequest);
             if (getResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 // Exchange already exists, no need to create it again
-                return true;
+                return ResponseCode.OK;
             }
             HttpPut request = new HttpPut(url);
             request.setHeader(CONTENT_TYPE, APPLICATION_JSON);
-            JSONObject exchangeJson = new JSONObject();
-            exchangeJson.put("type", "topic");
             request.setEntity(new StringEntity(exchangeJson.toString()));
             HttpResponse response = httpClient.execute(request);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_CREATED) {
-                return true;
+                return ResponseCode.CREATED;
             } else {
                 LOG.error("Failed to create exchange. Status code: {}", statusCode);
             }
         }
-        return false;
+        return ResponseCode.BAD_REQUEST;
     }
 
-    public Boolean createBinding(String vhost,
-                                 String exchangeName,
-                                 String queueName,
-                                 String routingKey,
-                                 String destination) throws IOException {
+    public ResponseCode createBinding(String vhost, String queueName, JSONObject bindingJson) throws IOException {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(sourceHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(sourceUsername, sourcePassword));
         try (CloseableHttpClient httpClient = HttpClients.custom()
                 .setDefaultCredentialsProvider(credsProvider)
                 .build()) {
-            String url = HTTP + sourceHost + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/bindings/" + vhost + "/e/" + exchangeName + "/q/" + queueName;
+            String url = HTTP + sourceHost + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/bindings/" + vhost + "/e/" + bindingJson.getString("source") + "/q/" + queueName;
             HttpPost request = new HttpPost(url);
             request.setHeader(CONTENT_TYPE, APPLICATION_JSON);
-            JSONObject bindingJson = new JSONObject();
-            bindingJson.put("routing_key", routingKey);
-            bindingJson.put("destination", destination);
-            bindingJson.put("source", exchangeName);
             bindingJson.put("vhost", URLDecoder.decode(vhost, "UTF-8"));
             request.setEntity(new StringEntity(bindingJson.toString()));
             HttpResponse response = httpClient.execute(request);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_CREATED) {
-                return true;
+                return ResponseCode.CREATED;
             } else {
                 LOG.error("Failed to create binding. Status code: {}", statusCode);
             }
         }
-        return false;
+        return ResponseCode.BAD_REQUEST;
     }
 
-    public Boolean createQueue(String vhost, String queueName) throws IOException {
+    public ResponseCode createQueue(String vhost, String queueName, JSONObject queueJson) throws IOException {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(sourceHost, RABBITMQ_MANAGEMENT_PORT), new UsernamePasswordCredentials(sourceUsername, sourcePassword));
         try (CloseableHttpClient httpClient = HttpClients.custom()
                 .setDefaultCredentialsProvider(credsProvider)
                 .build()) {
-            HttpPut request = getHttpPut(vhost, queueName);
+            HttpPut request = getHttpPut(vhost, queueName, queueJson);
             HttpResponse response = httpClient.execute(request);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == HttpStatus.SC_CREATED || statusCode == HttpStatus.SC_NO_CONTENT) {
-                return true;
-            } else {
-                LOG.error("Failed to create queue. Status code: {}", statusCode);
+            switch (response.getStatusLine().getStatusCode()) {
+                case HttpStatus.SC_CREATED:
+                    return ResponseCode.CREATED;
+                case HttpStatus.SC_NO_CONTENT:
+                    return ResponseCode.NO_CONTENT;
+                default:
+                    LOG.error("Failed to create queue. Status code: {}", response.getStatusLine().getStatusCode());
             }
         }
-        return false;
+        return ResponseCode.BAD_REQUEST;
     }
 
     @NotNull
-    private HttpPut getHttpPut(String vhost, String queueName) throws UnsupportedEncodingException {
+    private HttpPut getHttpPut(String vhost, String queueName, JSONObject queueJson) throws UnsupportedEncodingException {
         String url = HTTP + sourceHost + ":" + RABBITMQ_MANAGEMENT_PORT + "/api/queues/" + vhost + "/" + queueName;
         HttpPut request = new HttpPut(url);
         request.setHeader(CONTENT_TYPE, APPLICATION_JSON);
-        JSONObject queueJson = new JSONObject();
-        queueJson.put("auto_delete", false);
-        queueJson.put("durable", true);
         request.setEntity(new StringEntity(queueJson.toString()));
         return request;
     }
